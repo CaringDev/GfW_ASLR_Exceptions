@@ -2,8 +2,6 @@ Param (
     [string]$Path
 )
 
-AddExceptions(GetGitPath($Path))
-
 Function GetGitPath {
     Param (
         [Parameter(Mandatory=$true)]
@@ -36,8 +34,8 @@ Function AddExceptions {
 
     $MitigationAuditOptions = [byte[]]::new(0x10)
     $MitigationOptions      = [byte[]]::new(0x10)
-    $MitigationOptions[1]=0x2
-
+    $MitigationOptions[1]=0x2 # ASLR
+    $MitigationOptions[2]=0x22 # Bottom-up ASLR
 
     $HKLM = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::LocalMachine, [Microsoft.Win32.RegistryView]::Default)
     $IFEO = $HKLM.OpensubKey($IFEOPath, $true)
@@ -59,3 +57,5 @@ Function AddExceptions {
         $EXEKeyFullPath.SetValue("MitigationAuditOptions", $MitigationAuditOptions, [Microsoft.Win32.RegistryValueKind]::Binary)
     }
 }
+
+AddExceptions(GetGitPath($Path))
